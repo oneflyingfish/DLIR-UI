@@ -9,10 +9,10 @@ def main():
         st.session_state["route"]="login"
 
     if st.session_state["route"]=="login":
-        st.set_page_config(page_title="登录",page_icon="🧊")
+        st.set_page_config(page_title="登录",page_icon="img/user.png")
         account.LoginPage()
     elif st.session_state["route"]=="home":
-        st.set_page_config(page_title="DLIR-Allocator管理后台",page_icon="🧊",layout="wide")
+        st.set_page_config(page_title="DLIR-Allocator管理后台",page_icon="img/logo.png",layout="wide")
         home.Home()
     
 

@@ -11,7 +11,7 @@ def RegisterPage():
     newPassword = st.text_input("新密码：", type="password",placeholder="请输入密码")
     newPasswordAgain = st.text_input("重复密码：", type="password",placeholder="请再次输入密码")
 
-    createCol, homeCol = st.columns(2)
+    createCol, homeCol = st.columns([1,1])
 
     st.markdown(
         """
@@ -26,18 +26,23 @@ def RegisterPage():
         }
         .createCol {
             width: 50%;
-            display: flex-start;
+            display: flex;
             justify-content: flex-start;
         }
         .homeCol {
             width: 50%;
-            display: flex-end;
+            display: flex;
             justify-content: flex-end;
         }
         </style>
         """,
         unsafe_allow_html=True
     )
+
+    if homeCol.button("退出重新登录"):
+        st.session_state["route"]="login"
+        del st.session_state["user_id"]
+        st.experimental_rerun()
 
     # 当用户单击注册按钮时执行以下代码
     if createCol.button("创建"):
@@ -69,10 +74,7 @@ def RegisterPage():
         database.WriteUsersDatabase(usersDatabase)
 
         st.success("用户注册成功！")
-    if homeCol.button("退出重新登录"):
-        st.session_state["route"]="login"
-        del st.session_state["user_id"]
-        st.experimental_rerun()
+    
 
 def ChangePasswordPage():
     st.title("修改密码")

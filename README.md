@@ -12,10 +12,10 @@ pip3 install streamlit
 
 ```shell
 # windows
-streamlit run main.py --server.fileWatcherType none
+streamlit run main.py
 
 # Linux
-python3 -m streamlit run main.py --server.fileWatcherType none
+python3 -m streamlit run main.py --server.fileWatcherType poll
 ```
 
 

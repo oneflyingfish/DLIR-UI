@@ -10,35 +10,40 @@
     },
     "system_path": "/home/onceas/yutian/DLIR-UI",
     "models": {
-        "VGG19": {
-            "name": "VGG19",
-            "date": "2023-03-09 10:21:23",
+        "googlenet": {
+            "name": "googlenet",
+            "date": "2023-03-09 13:06:52",
             "by_user": "\u4f59\u751c",
-            "path": "/home/onceas/yutian/DLIR-UI/Onnxs/VGG19/VGG19.onnx"
+            "fold": "/home/onceas/yutian/DLIR-UI/Onnxs/googlenet",
+            "path": "/home/onceas/yutian/DLIR-UI/Onnxs/googlenet/googlenet.onnx"
         },
-        "GPT128": {
-            "name": "GPT128",
-            "date": "2023-03-09 10:24:38",
+        "yolov2": {
+            "name": "yolov2",
+            "date": "2023-03-09 13:15:22",
             "by_user": "\u4f59\u751c",
-            "path": "/home/onceas/yutian/DLIR-UI/Onnxs/GPT128/GPT128.onnx"
+            "fold": "/home/onceas/yutian/DLIR-UI/Onnxs/yolov2",
+            "path": "/home/onceas/yutian/DLIR-UI/Onnxs/yolov2/yolov2.onnx"
         },
-        "Googlenet": {
-            "name": "Googlenet",
-            "date": "2023-03-09 10:24:49",
+        "resnet50": {
+            "name": "resnet50",
+            "date": "2023-03-09 13:07:17",
             "by_user": "\u4f59\u751c",
-            "path": "/home/onceas/yutian/DLIR-UI/Onnxs/Googlenet/Googlenet.onnx"
+            "fold": "/home/onceas/yutian/DLIR-UI/Onnxs/resnet50",
+            "path": "/home/onceas/yutian/DLIR-UI/Onnxs/resnet50/resnet50.onnx"
         },
-        "YOLOv2": {
-            "name": "YOLOv2",
-            "date": "2023-03-09 10:25:49",
+        "vgg19": {
+            "name": "vgg19",
+            "date": "2023-03-09 13:08:32",
             "by_user": "\u4f59\u751c",
-            "path": "/home/onceas/yutian/DLIR-UI/Onnxs/YOLOv2/YOLOv2.onnx"
+            "fold": "/home/onceas/yutian/DLIR-UI/Onnxs/vgg19",
+            "path": "/home/onceas/yutian/DLIR-UI/Onnxs/vgg19/vgg19.onnx"
         },
-        "Resnet50": {
-            "name": "Resnet50",
-            "date": "2023-03-09 10:26:42",
+        "gpt128v2": {
+            "name": "gpt128v2",
+            "date": "2023-03-09 14:07:29",
             "by_user": "\u4f59\u751c",
-            "path": "/home/onceas/yutian/DLIR-UI/Onnxs/Resnet50/Resnet50.onnx"
+            "fold": "/home/onceas/yutian/DLIR-UI/Onnxs/gpt128v2",
+            "path": "/home/onceas/yutian/DLIR-UI/Onnxs/gpt128v2/gpt128v2.onnx"
         }
     }
 }

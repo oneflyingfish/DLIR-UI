@@ -1,0 +1,9 @@
+{
+    "googlenet": 8.65,
+    "resnet50": 9.10,
+    "squeezenetv1": 7.3,
+    "vgg19": 7.45,
+    "yolov2": 6.17,
+    "gpt128v2": 8.607727,
+    "mobilenetv2.7":2.079
+}
