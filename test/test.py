@@ -1,17 +1,24 @@
 import streamlit as st
-import time
-import numpy as np
 
-progress_bar = st.progress(0) # 显示进度条
-status_text = st.empty() # 创建空占位符
+# 登录页面
+def login_page():
+    st.title("登录页面")
+    username = st.text_input("用户名")
+    password = st.text_input("密码", type="password")
+    if st.button("登录"):
+        if username == "admin" and password == "admin":
+            # 跳转到主页面
+            main_page()
+        else:
+            st.error("用户名或密码错误")
 
-for i in range(10):
-    # 更新进度条值
-    progress_bar.progress(i+1)
-    # 更新占位符中的文本
-    status_text.text(f'Processing data point {i+1}...')
-    time.sleep(1)
+# 主页面
+def main_page():
+    st.title("主页面")
+    st.write("欢迎登录！")
+    if st.button("退出登录"):
+        # 跳转回登录页面
+        login_page()
 
-# 清空显示
-progress_bar.empty()
-status_text.empty()
+# 默认显示登录页面
+login_page()
