@@ -1,6 +1,7 @@
 import database
 import streamlit as st
 import time
+import datetime
 
 def RegisterPage():
     st.title("创建新用户")
@@ -63,18 +64,14 @@ def RegisterPage():
             newId = max([int(id_str) for id_str in usersDatabase["users"]]) + 1
 
         # 将新用户添加到用户数据库中
-        newUser = {"id": newId, "username": newUsername, "password": newPassword}
+        newUser = {"id": newId, "username": newUsername, "password": newPassword, "date": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "by_user": usersDatabase["users"][str(st.session_state["user_id"])]["username"]}
         usersDatabase["users"][newId]=newUser
         database.WriteUsersDatabase(usersDatabase)
 
-        st.success("用户注册成功, 即将转到登录页面...")
-        time.sleep(1)
-
+        st.success("用户注册成功！")
+    if homeCol.button("退出重新登录"):
         st.session_state["route"]="login"
         del st.session_state["user_id"]
-        st.experimental_rerun()
-    if homeCol.button("返回首页"):
-        st.session_state["route"]="home"
         st.experimental_rerun()
 
 def ChangePasswordPage():
@@ -126,7 +123,7 @@ def ChangePasswordPage():
             st.session_state["route"]="login"
             st.experimental_rerun()
         usersDatabase = database.ReadUsersDatabase()
-        usersDatabase["users"][str(st.session_state["user_id"]["password"])]=newPassword
+        usersDatabase["users"][str(st.session_state["user_id"])]["password"]=newPassword
         database.WriteUsersDatabase(usersDatabase)
 
         st.success("密码修改成功, 即将转到登录页面...")

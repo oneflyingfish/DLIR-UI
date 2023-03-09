@@ -2,13 +2,43 @@
     "users": {
         "1": {
             "id": 1,
-            "username": "admin",
-            "password": "123456"
+            "username": "\u4f59\u751c",
+            "password": "123456",
+            "date": "2023-03-08 08:08:08",
+            "by_user": "\uff08\u9ed8\u8ba4\u8d26\u6237\uff09"
+        }
+    },
+    "system_path": "/home/onceas/yutian/DLIR-UI",
+    "models": {
+        "VGG19": {
+            "name": "VGG19",
+            "date": "2023-03-09 10:21:23",
+            "by_user": "\u4f59\u751c",
+            "path": "/home/onceas/yutian/DLIR-UI/Onnxs/VGG19/VGG19.onnx"
         },
-        "2": {
-            "id": 2,
-            "username": "admin1",
-            "password": "123456"
+        "GPT128": {
+            "name": "GPT128",
+            "date": "2023-03-09 10:24:38",
+            "by_user": "\u4f59\u751c",
+            "path": "/home/onceas/yutian/DLIR-UI/Onnxs/GPT128/GPT128.onnx"
+        },
+        "Googlenet": {
+            "name": "Googlenet",
+            "date": "2023-03-09 10:24:49",
+            "by_user": "\u4f59\u751c",
+            "path": "/home/onceas/yutian/DLIR-UI/Onnxs/Googlenet/Googlenet.onnx"
+        },
+        "YOLOv2": {
+            "name": "YOLOv2",
+            "date": "2023-03-09 10:25:49",
+            "by_user": "\u4f59\u751c",
+            "path": "/home/onceas/yutian/DLIR-UI/Onnxs/YOLOv2/YOLOv2.onnx"
+        },
+        "Resnet50": {
+            "name": "Resnet50",
+            "date": "2023-03-09 10:26:42",
+            "by_user": "\u4f59\u751c",
+            "path": "/home/onceas/yutian/DLIR-UI/Onnxs/Resnet50/Resnet50.onnx"
         }
     }
 }
