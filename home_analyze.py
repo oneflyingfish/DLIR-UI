@@ -146,4 +146,76 @@ def TestModelPerformance():
             show_evaluate_latencys[key] = [evaluate_latencys[key][i] for i in indexs]
 
         st.dataframe(pd.DataFrame(show_evaluate_latencys),use_container_width=True)
+
+def ShowModelSplit(name,count,json_log):
+    st.markdown("###### {} (子模型数量={}):".format(name,str(count)))
     
+    cols = st.columns([3,3,3])
+
+    latency_data=[]
+    for _ in range(count):
+        latency_data.append([])
+    overhead_data=[]
+    std_data=[]
+    iter_data=[]
+
+    cols[0].text("子模型延迟变化（ms）:")
+    tmp={"子模型-"+str(i+1): latency_data[i] for i in range(len(latency_data))}
+    tmp["迭代次数"]=iter_data
+    chart_latency = cols[0].line_chart(pd.DataFrame(tmp),use_container_width=True, x="迭代次数")
+
+    cols[1].text("开销变化:")
+    chart_overhead=cols[1].line_chart(pd.DataFrame({"开销": overhead_data, "迭代次数": iter_data}),use_container_width=True, x="迭代次数")
+    cols[2].text("标准差:")
+    chart_std=cols[2].line_chart(pd.DataFrame({"标准差": std_data, "迭代次数": iter_data}),use_container_width=True, x="迭代次数")
+
+    for iter in range(1,int(json_log["iter_count"])+1):
+        iter_data.append(iter)
+        for index in range(len(json_log[str(iter)]["costs"])):
+            latency_data[index].append(json_log[str(iter)]["costs"][index])
+        overhead_data.append(json_log[str(iter)]["overhead"])
+        std_data.append(json_log[str(iter)]["std"])
+
+        chart_latency.line_chart(pd.DataFrame(tmp),use_container_width=True, x="迭代次数")
+        chart_overhead.line_chart(pd.DataFrame({"开销": overhead_data, "迭代次数": iter_data}),use_container_width=True, x="迭代次数")
+        chart_std.line_chart(pd.DataFrame({"标准差": std_data, "迭代次数": iter_data}),use_container_width=True, x="迭代次数")
+        time.sleep(0.2)
+    
+def ChildModelSplit():
+    st.markdown("#### 模型切分分析:")
+    models=database.ReadUsersDatabase()["models"]
+
+    st.markdown("###### 测试:")
+    if not os.path.exists(os.path.join(os.getcwd(),"logs/split-log.json")):
+        # run
+        pass
+
+    with open(os.path.join(os.getcwd(),"logs/split-log.json"),"r") as fp:
+        latencys=json.load(fp)
+
+    # 获取要绘制的模型
+    analyze_models=[]
+    for model in latencys:
+        if model in models:
+            analyze_models.append(model)
+
+    model_names=[]
+    model_counts=[]
+    model_overhead=[]
+    model_range=[]
+    model_range_percent=[]
+    for model_name in analyze_models:
+        counts=sorted([int(count) for count in latencys[model_name]])
+        for count in counts:
+            ShowModelSplit(model_name,count,latencys[model_name][str(count)])
+            model_names.append(model_name)
+            model_counts.append(str(count))
+            best=latencys[model_name][str(count)][str(latencys[model_name][str(count)]["iter_count"])]
+            model_overhead.append('{:.2%}'.format(best["overhead"]))
+            model_range.append(str(max(best["costs"])-min(best["costs"])))
+            model_range_percent.append('{:.2%}'.format((max(best["costs"])-min(best["costs"]))*(1.0+best["overhead"])/sum(best["costs"])))
+    
+    st.table(pd.DataFrame({"模型名称":model_names,"子模型数量": model_counts, "切分开销": model_overhead,"极差（ms）": model_range,"极差/原模型推理延迟":model_range_percent}))
+
+    st.session_state["vgg19"]=3
+    st.session_state["resnet50"]=2

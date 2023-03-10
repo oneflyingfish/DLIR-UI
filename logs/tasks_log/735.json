@@ -1,0 +1,19 @@
+{
+    "child_model_execute_cost_by_ms": [
+        13.644000053405762
+    ],
+    "child_model_run_time": [
+        [
+            34478762,
+            34492406
+        ]
+    ],
+    "execute_cost": 13.644000053405762,
+    "finish_time": 34492418,
+    "limit_cost_by_ms": 6.894999980926514,
+    "model_name": "gpt128v2",
+    "recv_time": 34478745,
+    "tag": "737",
+    "total_cost_by_ms": 13.67300033569336,
+    "wait_cost": 0.029000282287597656
+}

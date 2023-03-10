@@ -6,6 +6,20 @@
             "password": "123456",
             "date": "2023-03-08 08:08:08",
             "by_user": "\uff08\u9ed8\u8ba4\u8d26\u6237\uff09"
+        },
+        "2": {
+            "id": 2,
+            "username": "\u5434\u6052",
+            "password": "123456",
+            "date": "2023-03-10 06:44:30",
+            "by_user": "\u4f59\u751c"
+        },
+        "3": {
+            "id": 3,
+            "username": "\u7f57\u9493\u5bd2",
+            "password": "123456",
+            "date": "2023-03-10 06:44:48",
+            "by_user": "\u4f59\u751c"
         }
     },
     "system_path": "/home/onceas/yutian/DLIR-UI",

@@ -1,0 +1,19 @@
+{
+    "child_model_execute_cost_by_ms": [
+        6.464000225067139
+    ],
+    "child_model_run_time": [
+        [
+            38572409,
+            38578873
+        ]
+    ],
+    "execute_cost": 6.464000225067139,
+    "finish_time": 38578883,
+    "limit_cost_by_ms": 5.7816667556762695,
+    "model_name": "yolov2",
+    "recv_time": 38566599,
+    "tag": "911",
+    "total_cost_by_ms": 12.284000396728516,
+    "wait_cost": 5.820000171661377
+}

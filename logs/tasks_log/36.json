@@ -1,0 +1,19 @@
+{
+    "child_model_execute_cost_by_ms": [
+        9.631999969482422
+    ],
+    "child_model_run_time": [
+        [
+            18161466,
+            18171098
+        ]
+    ],
+    "execute_cost": 9.631999969482422,
+    "finish_time": 18171109,
+    "limit_cost_by_ms": 8.904333114624023,
+    "model_name": "googlenet",
+    "recv_time": 18142593,
+    "tag": "38",
+    "total_cost_by_ms": 28.516000747680664,
+    "wait_cost": 18.884000778198242
+}

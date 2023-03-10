@@ -12,10 +12,9 @@ def main():
         st.set_page_config(page_title="登录",page_icon="img/user.png")
         account.LoginPage()
     elif st.session_state["route"]=="home":
-        st.set_page_config(page_title="DLIR-Allocator管理后台",page_icon="img/logo.png",layout="wide")
+        st.set_page_config(page_title="DLIR-Allocator管理后台",page_icon="img/manager.png",layout="wide")
         home.Home()
     
-
 if __name__ == "__main__":
     st.set_option("deprecation.showfileUploaderEncoding", False)
     main()

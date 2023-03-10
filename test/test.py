@@ -1,16 +1,11 @@
 import streamlit as st
-import matplotlib.pyplot as plt
 
-# 数据
-data = [20, 30, 25, 35, 27]
+# 创建一个容器并指定宽度
+container = st.container()
+container.width = 500
 
-# 创建条状图
-fig, ax = plt.subplots()
-ax.bar(range(len(data)), data)
-
-# 添加坐标轴标签
-ax.set_xlabel('X轴标签')
-ax.set_ylabel('Y轴标签')
-
-# 显示图形
-st.pyplot(fig)
+# 在容器中添加控件
+with container:
+    st.write("这是一个在框框里面的文本")
+    value = st.slider("选择一个值", 0, 100, 50)
+    st.write("您选择的值是：", value)
