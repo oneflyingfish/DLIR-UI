@@ -232,6 +232,9 @@ def RunTimeLog():
         for current_time in range(min_time+1,max_time+1):
             delay_1ms()
             times_serial,resour_time,tasks_time,RR_time=FlushDatas(times_serial,resour_time,tasks_time,RR_time,task_start_ends_tmp,resource_uses_tmp,RR_logs_tmp,model_dict)
+            # for m in RR_time:
+            #     print(RR_time[m][-1][1], end=", ")
+            # print()
 
             tmp={"时间（ms）": times_serial}
             for model_name in task_start_ends:
@@ -246,6 +249,7 @@ def RunTimeLog():
             for model_name in RR_time:
                 tmp[model_name]=[v[2] for v in RR_time[model_name]]
             RR_chart.line_chart(pd.DataFrame(tmp),use_container_width=True, x="时间（ms）")
+
 
 
 def GetModelMaxCount(models):
@@ -422,19 +426,19 @@ def ShowInterface():
 
     st.markdown('''
     ###### 调用接口信息：
-    > `RequestInfo.data` and `ReplyInfo.result`是矩阵的字符串表示，例如`"[[1.3, 4.5], [1, 2.0]]"`
+    > `RequestInfo.data` and `ReplyInfo.result`是输入/输出数据字典格式的字符串表示，例如`"{data: [[1.3, 4.5], [1, 2.0]]}"`
 
     ```shell
     syntax = "proto3";
 
     message RequestInference {
         string modelname = 1                // 将使用的推理服务，例如 "vgg19"
-        string data = 2;                    // 待推理的数据, 例如 "[[1.3, 4.5], [1, 2.0]]"
+        string data = 2;                    // 待推理的数据, 例如 "{data: [[1.3, 4.5], [1, 2.0]]}"
     }
 
     message ReplyInference {
         int32 status =1;                    // 计算状态，1：成功；0：失败
-        string result = 2;                  // 推理结果, 例如 "[0.8]"
+        string result = 2;                  // 推理结果, 例如 "{output: [0.8]}"
         string info =3;                     // 存在warning或者error时，记录在此字段中，通常为空
     }
 

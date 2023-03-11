@@ -2,62 +2,69 @@
     "users": {
         "1": {
             "id": 1,
-            "username": "\u4f59\u751c",
+            "username": "admin",
             "password": "123456",
             "date": "2023-03-08 08:08:08",
-            "by_user": "\uff08\u9ed8\u8ba4\u8d26\u6237\uff09"
+            "by_user": "-"
         },
         "2": {
             "id": 2,
-            "username": "\u5434\u6052",
+            "username": "user1",
             "password": "123456",
-            "date": "2023-03-10 06:44:30",
-            "by_user": "\u4f59\u751c"
+            "date": "2023-03-11 19:48:34",
+            "by_user": "admin"
         },
         "3": {
             "id": 3,
-            "username": "\u7f57\u9493\u5bd2",
+            "username": "user2",
             "password": "123456",
-            "date": "2023-03-10 06:44:48",
-            "by_user": "\u4f59\u751c"
+            "date": "2023-03-11 19:48:38",
+            "by_user": "admin"
+        },
+        "4": {
+            "id": 4,
+            "username": "Tom",
+            "password": "123456",
+            "date": "2023-03-11 19:49:08",
+            "by_user": "user2"
         }
     },
-    "system_path": "/home/onceas/yutian/DLIR-UI",
+    "system_path": "",
     "models": {
         "googlenet": {
             "name": "googlenet",
             "date": "2023-03-09 13:06:52",
-            "by_user": "\u4f59\u751c",
-            "fold": "/home/onceas/yutian/DLIR-UI/Onnxs/googlenet",
-            "path": "/home/onceas/yutian/DLIR-UI/Onnxs/googlenet/googlenet.onnx"
+            "by_user": "admin",
+            "fold": "Onnxs/googlenet",
+            "path": "Onnxs/googlenet/googlenet.onnx"
         },
         "yolov2": {
             "name": "yolov2",
             "date": "2023-03-09 13:15:22",
-            "by_user": "\u4f59\u751c",
-            "fold": "/home/onceas/yutian/DLIR-UI/Onnxs/yolov2",
-            "path": "/home/onceas/yutian/DLIR-UI/Onnxs/yolov2/yolov2.onnx"
+            "by_user": "admin",
+            "fold": "Onnxs/yolov2",
+            "path": "Onnxs/yolov2/yolov2.onnx"
         },
         "resnet50": {
             "name": "resnet50",
             "date": "2023-03-09 13:07:17",
-            "by_user": "\u4f59\u751c",
-            "fold": "/home/onceas/yutian/DLIR-UI/Onnxs/resnet50",
-            "path": "/home/onceas/yutian/DLIR-UI/Onnxs/resnet50/resnet50.onnx"
+            "by_user": "admin",
+            "fold": "Onnxs/resnet50",
+            "path": "Onnxs/resnet50/resnet50.onnx"
         },
         "vgg19": {
             "name": "vgg19",
             "date": "2023-03-09 13:08:32",
-            "by_user": "\u4f59\u751c",
-            "fold": "/home/onceas/yutian/DLIR-UI/Onnxs/vgg19",
-            "path": "/home/onceas/yutian/DLIR-UI/Onnxs/vgg19/vgg19.onnx"
+            "by_user": "admin",
+            "fold": "Onnxs/vgg19",
+            "path": "Onnxs/vgg19/vgg19.onnx"
         },
         "gpt128v2": {
             "name": "gpt128v2",
             "date": "2023-03-09 14:07:29",
-            "by_user": "\u4f59\u751c",
-            "fold": "/home/onceas/yutian/DLIR-UI/Onnxs/gpt128v2",
-            "path": "/home/onceas/yutian/DLIR-UI/Onnxs/gpt128v2/gpt128v2.onnx"
+            "by_user": "admin",
+            "fold": "Onnxs/gpt128v2",
+            "path": "Onnxs/gpt128v2/gpt128v2.onnx"
         }
     }
 }
