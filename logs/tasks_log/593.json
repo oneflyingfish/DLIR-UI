@@ -1,19 +1,19 @@
 {
     "child_model_execute_cost_by_ms": [
-        6.480000019073486
+        13.392999649047852
     ],
     "child_model_run_time": [
         [
-            31130876,
-            31137356
+            30887491,
+            30900884
         ]
     ],
-    "execute_cost": 6.480000019073486,
-    "finish_time": 31137361,
-    "limit_cost_by_ms": 5.7816667556762695,
-    "model_name": "yolov2",
-    "recv_time": 31130828,
-    "tag": "594",
-    "total_cost_by_ms": 6.5329999923706055,
-    "wait_cost": 0.05299997329711914
+    "execute_cost": 13.392999649047852,
+    "finish_time": 30900892,
+    "limit_cost_by_ms": 6.9683332443237305,
+    "model_name": "gpt128v2",
+    "recv_time": 30884572,
+    "tag": "596",
+    "total_cost_by_ms": 16.31999969482422,
+    "wait_cost": 2.927000045776367
 }

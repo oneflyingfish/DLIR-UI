@@ -1,19 +1,19 @@
 {
     "child_model_execute_cost_by_ms": [
-        9.795000076293945
+        10.444000244140625
     ],
     "child_model_run_time": [
         [
-            30260435,
-            30270230
+            30015516,
+            30025960
         ]
     ],
-    "execute_cost": 9.795000076293945,
-    "finish_time": 30270240,
-    "limit_cost_by_ms": 8.904333114624023,
-    "model_name": "googlenet",
-    "recv_time": 30252417,
+    "execute_cost": 10.444000244140625,
+    "finish_time": 30025971,
+    "limit_cost_by_ms": 6.9683332443237305,
+    "model_name": "gpt128v2",
+    "recv_time": 30007839,
     "tag": "557",
-    "total_cost_by_ms": 17.822999954223633,
-    "wait_cost": 8.027999877929688
+    "total_cost_by_ms": 18.131999969482422,
+    "wait_cost": 7.687999725341797
 }

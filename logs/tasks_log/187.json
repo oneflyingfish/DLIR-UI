@@ -1,19 +1,29 @@
 {
     "child_model_execute_cost_by_ms": [
-        6.340000152587891
+        18.121000289916992,
+        18.33099937438965,
+        19.895999908447266
     ],
     "child_model_run_time": [
         [
-            21672189,
-            21678529
+            21462414,
+            21480535
+        ],
+        [
+            21539679,
+            21558010
+        ],
+        [
+            21558045,
+            21577941
         ]
     ],
-    "execute_cost": 6.340000152587891,
-    "finish_time": 21678533,
-    "limit_cost_by_ms": 5.7816667556762695,
-    "model_name": "yolov2",
-    "recv_time": 21658943,
-    "tag": "188",
-    "total_cost_by_ms": 19.59000015258789,
-    "wait_cost": 13.25
+    "execute_cost": 56.347999572753906,
+    "finish_time": 21577946,
+    "limit_cost_by_ms": 44.79933166503906,
+    "model_name": "vgg19",
+    "recv_time": 21358098,
+    "tag": "181",
+    "total_cost_by_ms": 219.84800720214844,
+    "wait_cost": 163.5
 }

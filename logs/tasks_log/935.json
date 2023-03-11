@@ -1,19 +1,19 @@
 {
     "child_model_execute_cost_by_ms": [
-        10.267999649047852
+        7.730999946594238
     ],
     "child_model_run_time": [
         [
-            39175778,
-            39186046
+            38691226,
+            38698957
         ]
     ],
-    "execute_cost": 10.267999649047852,
-    "finish_time": 39186057,
-    "limit_cost_by_ms": 8.904333114624023,
-    "model_name": "googlenet",
-    "recv_time": 39169669,
-    "tag": "937",
-    "total_cost_by_ms": 16.38800048828125,
-    "wait_cost": 6.120000839233398
+    "execute_cost": 7.730999946594238,
+    "finish_time": 38698968,
+    "limit_cost_by_ms": 5.815999984741211,
+    "model_name": "yolov2",
+    "recv_time": 38686686,
+    "tag": "938",
+    "total_cost_by_ms": 12.281999588012695,
+    "wait_cost": 4.550999641418457
 }

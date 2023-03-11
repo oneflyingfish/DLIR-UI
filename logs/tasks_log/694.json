@@ -1,24 +1,19 @@
 {
     "child_model_execute_cost_by_ms": [
-        14.907999992370605,
-        12.730999946594238
+        6.611000061035156
     ],
     "child_model_run_time": [
         [
-            33505113,
-            33520021
-        ],
-        [
-            33520060,
-            33532791
+            33191562,
+            33198173
         ]
     ],
-    "execute_cost": 27.638999938964844,
-    "finish_time": 33532796,
-    "limit_cost_by_ms": 18.256332397460938,
-    "model_name": "resnet50",
-    "recv_time": 33505053,
-    "tag": "695",
-    "total_cost_by_ms": 27.743000030517578,
-    "wait_cost": 0.10400009155273438
+    "execute_cost": 6.611000061035156,
+    "finish_time": 33198182,
+    "limit_cost_by_ms": 5.815999984741211,
+    "model_name": "yolov2",
+    "recv_time": 33171445,
+    "tag": "696",
+    "total_cost_by_ms": 26.73699951171875,
+    "wait_cost": 20.125999450683594
 }

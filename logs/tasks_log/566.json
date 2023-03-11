@@ -1,19 +1,29 @@
 {
     "child_model_execute_cost_by_ms": [
-        12.125
+        20.726999282836914,
+        16.79400062561035,
+        18.863000869750977
     ],
     "child_model_run_time": [
         [
-            30509186,
-            30521311
+            30251089,
+            30271816
+        ],
+        [
+            30271854,
+            30288648
+        ],
+        [
+            30288680,
+            30307543
         ]
     ],
-    "execute_cost": 12.125,
-    "finish_time": 30521320,
-    "limit_cost_by_ms": 8.904333114624023,
-    "model_name": "googlenet",
-    "recv_time": 30486900,
-    "tag": "567",
-    "total_cost_by_ms": 34.41999816894531,
-    "wait_cost": 22.294998168945313
+    "execute_cost": 56.384002685546875,
+    "finish_time": 30307546,
+    "limit_cost_by_ms": 44.79933166503906,
+    "model_name": "vgg19",
+    "recv_time": 30218903,
+    "tag": "566",
+    "total_cost_by_ms": 88.64299774169922,
+    "wait_cost": 32.258995056152344
 }
