@@ -2,7 +2,7 @@ import json,os
 import streamlit as st
 
 def ReadUsersDatabase():
-    with open("datas/users.json", "r") as f:
+    with open("datas/users.json", "r", encoding='utf-8') as f:
         usersDatabase = json.load(f)
         if "users" not in usersDatabase:
             usersDatabase["users"]={}
@@ -13,5 +13,5 @@ def ReadUsersDatabase():
     return usersDatabase
 
 def WriteUsersDatabase(usersDatabase):
-    with open("datas/users.json", "w") as f:
+    with open("datas/users.json", "w", encoding='utf-8') as f:
         json.dump(usersDatabase, f,indent=4)

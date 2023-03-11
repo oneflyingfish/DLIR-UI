@@ -1,7 +1,252 @@
 import streamlit as st
 import os,datetime,time,random,json
 import database
-import socket
+import copy
+import pandas as pd
+import socket,types
+from typing import Tuple,Dict
+import matplotlib.pyplot as plt
+
+def DealTime(value:int)->int:
+    return value//1000  # us to ms
+
+def FlushDatas(times_serial:list,resour_time:list,tasks_time:dict,RR_time:dict,task_start_ends_tmp:dict,resource_uses_tmp:list,RR_logs_tmp:list,model_dict:dict)->Tuple[list,list,dict,dict]:
+    current_time=times_serial[-1]+1
+
+    # 更新时间序列
+    times_serial.append(current_time)
+
+    # 更新资源序列
+    while True:
+        if len(resour_time)<1:
+            # 没有任务继续使用资源了
+            resour_time.append(model_dict["等待任务"])
+            break
+
+        related=resource_uses_tmp[-1]
+        if current_time<related[0]:
+            resour_time.append(model_dict["等待任务"])
+            break
+        elif current_time>=related[0] and current_time<=related[1]:
+            resour_time.append(model_dict[related[2]])
+            break
+        else:
+            # 当前加载子任务已经被处理完毕
+            resource_uses_tmp.pop()
+            continue
+    
+    # 更新任务数量序列
+    for model_name,count_list in tasks_time.items():
+        current_count=count_list[-1]
+        # 增加任务
+        while True:
+            if len(task_start_ends_tmp[model_name]["recv"])<1:
+                # 不会有任务到达了
+                break
+
+            if task_start_ends_tmp[model_name]["recv"][-1]<current_time:
+                task_start_ends_tmp[model_name]["recv"].pop()
+                continue
+            elif task_start_ends_tmp[model_name]["recv"][-1]==current_time:
+                current_count+=1
+                task_start_ends_tmp[model_name]["recv"].pop()
+                continue
+            else:
+                # 下一个最近任务尚未到达
+                break
+        
+        # 完成任务
+        while True:
+            if len(task_start_ends_tmp[model_name]["end"])<1:
+                # 不会有任务到达了
+                break
+
+            if task_start_ends_tmp[model_name]["end"][-1]<current_time:
+                task_start_ends_tmp[model_name]["end"].pop()
+                continue
+            elif task_start_ends_tmp[model_name]["end"][-1]==current_time:
+                current_count-=1
+                task_start_ends_tmp[model_name]["end"].pop()
+                continue
+            else:
+                # 下一个最近完成任务时刻尚未到达
+                break
+        tasks_time[model_name].append(current_count)
+
+    ## 更新响应比
+    update={}
+    for k in RR_time:
+        update[k]=[0,0]
+
+    while True:
+        if len(RR_logs_tmp)<1:
+            # 响应比没变化
+            break
+        related=RR_logs_tmp[-1]
+        if current_time<related[0]:
+            # 响应比没变化
+            break
+        elif current_time>=related[0] and current_time<=related[0]:
+            update[related[2]][0]+=related[1]
+            update[related[2]][1]+=1
+            update["total"][0]+=related[1]
+            update["total"][1]+=1
+            break
+        else:
+            # 当前加载子任务已经被处理完毕
+            RR_logs_tmp.pop()
+            continue
+    
+    for model_name,con in update.items():
+        relate=RR_time[model_name][-1]
+        RR_time[model_name].append((relate[0]+con[0],relate[1]+con[1],((relate[0]+con[0])/(relate[1]+con[1])) if (relate[1]+con[1])>0 else 1))
+
+    return times_serial,resour_time,tasks_time,RR_time
+
+def AnalyzeLogs()->Tuple[list,dict,list]:
+    files=[file_name for file_name in os.listdir(os.path.join(os.getcwd(),"logs/tasks_log")) if file_name.endswith(".json")]
+    resource_uses=[]
+    task_start_ends={}
+    RR=[]
+
+    for log_file in files:
+        with open(os.path.join(os.getcwd(),"logs/tasks_log",log_file),"r", encoding='utf-8') as fp:
+            tmp_data=json.load(fp)
+            model_name=tmp_data["model_name"]
+            if model_name not in task_start_ends:
+                task_start_ends[model_name]=[]
+            task_start_ends[model_name].append((DealTime(tmp_data["recv_time"]),DealTime(tmp_data["finish_time"])))
+            
+            for child_info in tmp_data["child_model_run_time"]:
+                resource_uses.append((DealTime(child_info[0]),DealTime(child_info[1]),model_name))
+            
+            rr_tmp=max(1.0,tmp_data["total_cost_by_ms"]/tmp_data["limit_cost_by_ms"])
+            RR.append((DealTime(tmp_data["finish_time"]),rr_tmp,model_name))
+    resource_uses=sorted(resource_uses,key=lambda x:x[0])
+
+    for model_name in task_start_ends:
+        task_start_ends[model_name]=sorted(task_start_ends[model_name],key=lambda x:x[0])
+
+    return resource_uses,task_start_ends,sorted(RR,key=lambda x:x[0])
+
+# def DrawTotal(RR:dict,RR_chart,fig,ax):
+#     # ax.clear()
+#     x=[]
+#     y=[]
+#     for k,v in RR.items():
+#         x.append(k)
+#         y.append(v[0]/v[1] if v[1]>0 else 1)
+#     ax.bar(x,y,color=['r', 'g', 'orange', 'c', 'y','blue'][:len(RR)])
+#     ax.set_ylabel('平均响应比')
+
+#     print(RR)
+#     # 显示图形
+#     RR_chart.pyplot(fig)
+
+
+def delay_1ms():
+    time.sleep(0.0001)
+
+def RunTimeLog():
+    st.markdown("#### 系统监控日志：")
+    usersDatabase=database.ReadUsersDatabase()
+
+    # 求解任务情况
+    resource_uses,task_start_ends,RR_logs = AnalyzeLogs()
+    task_start_ends_tmp={}
+    max_time=0
+    min_time=float("inf")
+    for model_name in task_start_ends:
+        task_start_ends_tmp[model_name]={}
+        task_start_ends_tmp[model_name]["recv"]=sorted([v[0] for v in task_start_ends[model_name]],reverse=True)
+        task_start_ends_tmp[model_name]["end"]=sorted([v[1] for v in task_start_ends[model_name]],reverse=True)
+        max_time=max(max_time,task_start_ends_tmp[model_name]["end"][0])
+        min_time=min(min_time,task_start_ends_tmp[model_name]["recv"][-1])
+    min_time=max(min_time-10,0)
+    resource_uses_tmp=copy.deepcopy(resource_uses[::-1])
+    RR_logs_tmp = copy.deepcopy(RR_logs[::-1])
+
+    times_serial=[min_time]
+    tasks_time={}
+    RR_time={"total":[(0,0,1)]}
+    for model_name in task_start_ends:
+        tasks_time[model_name]=[0]
+        RR_time[model_name]=[(0,0,1)]
+    resour_time=[0]
+
+    st.markdown("##### 任务数量：")
+    tmp={"时间（ms）": times_serial}
+    count_charts={}
+
+    # 分列展示
+    # count_cols = st.columns(5)
+    # start_index=0
+    # for model_name in task_start_ends:
+    #     # tmp[model_name]=tasks_time[model_name]
+    #     count_cols[start_index%5].markdown("###### {}：".format(model_name))
+    #     count_charts[model_name]=count_cols[start_index%5].line_chart(pd.DataFrame({"时间（ms）": times_serial, "排队任务数量":tasks_time[model_name]}),use_container_width=True, x="时间（ms）")
+    #     start_index+=1
+
+    # 伸缩框展示
+    for model_name in task_start_ends:
+        # tmp[model_name]=tasks_time[model_name]
+        expander = st.expander("展示{}:".format(model_name))
+        expander.markdown("###### {}：".format(model_name))
+        count_charts[model_name]=expander.line_chart(pd.DataFrame({"时间（ms）": times_serial, "排队任务数量":tasks_time[model_name]}),use_container_width=True, x="时间（ms）")
+
+    st.markdown("##### 资源占用：")
+    model_keys=["等待任务"]+list(task_start_ends.keys())+["未知"]
+    model_dict={model_keys[i]: i for i in range(len(model_keys))}
+
+    # 显示表格
+    table_data={"资源占用类型":["编号"]}
+    for key,value in model_dict.items():
+        table_data[key]=[str(value)]
+    st.table(table_data)
+
+    resource_chart=st.line_chart(pd.DataFrame({"时间（ms）": times_serial,"资源占用类型":resour_time}),use_container_width=True, x="时间（ms）")
+
+
+    st.markdown("##### 平均响应比分析：")
+    # RR_cols=st.columns([1,2,1])
+    # plt.rcParams['font.sans-serif'] = ['SimHei']
+    # plt.rcParams['axes.unicode_minus'] = False
+    # plt.rcParams['font.size'] = 13
+    # fig, ax = plt.subplots()
+    # x=[]
+    # y=[]
+    # for k,v in RR_time.items():
+    #     x.append(k)
+    #     y.append(v[0]/v[1] if v[1]>0 else 1)
+    # ax.bar(x,y,color=['r', 'g', 'orange', 'c', 'y','blue'][:len(RR_time)])
+    # ax.set_ylabel('平均响应比')
+
+    # # 显示图形
+    # RR_chart=RR_cols[1].pyplot(fig)
+    tmp={"时间（ms）": times_serial}
+    for model_name in RR_time:
+        tmp[model_name]=[v[2] for v in RR_time[model_name]]
+    RR_chart=st.line_chart(pd.DataFrame(tmp),use_container_width=True, x="时间（ms）")
+
+    if max_time>min_time:
+        for current_time in range(min_time+1,max_time+1):
+            delay_1ms()
+            times_serial,resour_time,tasks_time,RR_time=FlushDatas(times_serial,resour_time,tasks_time,RR_time,task_start_ends_tmp,resource_uses_tmp,RR_logs_tmp,model_dict)
+
+            tmp={"时间（ms）": times_serial}
+            for model_name in task_start_ends:
+                tmp[model_name]=tasks_time[model_name]
+
+            for model_name in task_start_ends:
+                count_charts[model_name].line_chart(pd.DataFrame({"时间（ms）": times_serial, "排队任务数量":tasks_time[model_name]}),use_container_width=True, x="时间（ms）")
+
+            resource_chart.line_chart(pd.DataFrame({"时间（ms）": times_serial,"资源占用类型":resour_time}),use_container_width=True, x="时间（ms）")
+            # fig=DrawTotal(RR_time,RR_chart,fig,ax)
+            tmp={"时间（ms）": times_serial}
+            for model_name in RR_time:
+                tmp[model_name]=[v[2] for v in RR_time[model_name]]
+            RR_chart.line_chart(pd.DataFrame(tmp),use_container_width=True, x="时间（ms）")
+
 
 def GetModelMaxCount(models):
     result={}
@@ -12,7 +257,7 @@ def GetModelMaxCount(models):
     if not os.path.exists(os.path.join(os.getcwd(),"logs/split-log.json")):
         return result
 
-    with open(os.path.join(os.getcwd(),"logs/split-log.json"),"r") as fp:
+    with open(os.path.join(os.getcwd(),"logs/split-log.json"),"r", encoding='utf-8') as fp:
         latencys=json.load(fp)
         for model_name in models:
             if model_name in latencys:
@@ -80,7 +325,7 @@ def PullLogs():
 def UpdateLogs(log_form):
     
 
-    with open(os.path.join(os.getcwd(),"logs/server_log.txt"),"r") as fp:
+    with open(os.path.join(os.getcwd(),"logs/server_log.txt"),"r", encoding='utf-8') as fp:
         logs=fp.readlines()
 
     log_form.markdown('''
@@ -106,7 +351,7 @@ def ControlSystem():
         # run
         pass
     else:
-        with open(os.path.join(os.getcwd(),"logs/server_log.txt"),"r") as fp:
+        with open(os.path.join(os.getcwd(),"logs/server_log.txt"),"r", encoding='utf-8') as fp:
             logs=fp.readlines()
 
     # log_form=st.code("".join(logs),language="shell")

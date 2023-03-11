@@ -54,13 +54,13 @@ def Home():
 
     # 系统控制
     with st.sidebar.container():
-        model_select=st.selectbox("系统控制",["隐藏","状态查询","系统监控", "调用接口信息"], index=0)
+        model_select=st.selectbox("系统控制",["隐藏","状态查询","系统运行日志", "调用接口信息"], index=0)
 
     if model_select=="隐藏":
         pass
     elif model_select=="状态查询":
         home_system.ControlSystem()
-    elif model_select=="运行日志解析":
-        pass
+    elif model_select=="系统运行日志":
+        home_system.RunTimeLog()
     elif model_select=="调用接口信息":
         home_system.ShowInterface()

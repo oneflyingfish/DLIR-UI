@@ -4,7 +4,6 @@ import database
 import os
 import json,time
 import matplotlib.pyplot as plt
-import numpy as np
 
 def InsertIOLine(table_datas: dict, data)->dict:
     if "输入名称" not in table_datas:
@@ -38,7 +37,7 @@ def DisplayModelInfo():
     for name in models:
         if os.path.exists(os.path.join(models[name]["fold"],name+".json")):
             # read-log
-            with open(os.path.join(models[name]["fold"],name+".json"),"r") as fp:
+            with open(os.path.join(models[name]["fold"],name+".json"),"r", encoding='utf-8') as fp:
                 ShowModelIOInfo(json.load(fp),name)
         else:
             # run analyze
@@ -53,7 +52,7 @@ def TestModelPerformance():
         # run
         pass
 
-    with open(os.path.join(os.getcwd(),"logs/test_model_latency.json"),"r") as fp:
+    with open(os.path.join(os.getcwd(),"logs/test_model_latency.json"),"r", encoding='utf-8') as fp:
         latencys=json.load(fp)
 
         process_cols=st.columns(5)
@@ -84,7 +83,7 @@ def TestModelPerformance():
         # run
         pass
     
-    with open(os.path.join(os.getcwd(),"logs/test_result_latency.json"),"r") as fp:
+    with open(os.path.join(os.getcwd(),"logs/test_result_latency.json"),"r", encoding='utf-8') as fp:
         avg_latencys=json.load(fp)
 
 
@@ -111,7 +110,7 @@ def TestModelPerformance():
         # run
         pass
     
-    with open(os.path.join(os.getcwd(),"logs/test_result_latency_best.json"),"r") as fp:
+    with open(os.path.join(os.getcwd(),"logs/test_result_latency_best.json"),"r", encoding='utf-8') as fp:
         avg_latencys_c=json.load(fp)
 
     avg_x_c=[]
@@ -133,7 +132,7 @@ def TestModelPerformance():
         # run
         pass
 
-    with open(os.path.join(os.getcwd(),"logs/test_result_table.json"),"r") as fp:
+    with open(os.path.join(os.getcwd(),"logs/test_result_table.json"),"r", encoding='utf-8') as fp:
         evaluate_latencys=json.load(fp)
 
         indexs=[]
@@ -190,7 +189,7 @@ def ChildModelSplit():
         # run
         pass
 
-    with open(os.path.join(os.getcwd(),"logs/split-log.json"),"r") as fp:
+    with open(os.path.join(os.getcwd(),"logs/split-log.json"),"r", encoding='utf-8') as fp:
         latencys=json.load(fp)
 
     # 获取要绘制的模型

@@ -27,7 +27,7 @@ def UploadModels():
             if new_filename is not None and len(new_filename)>0:
                 os.makedirs(os.path.join(usersDatabase["system_path"],"Onnxs",new_filename),exist_ok=True)
                 new_file_path = os.path.join(usersDatabase["system_path"],"Onnxs",new_filename, new_filename+".onnx")
-                with open(new_file_path, "wb") as f:
+                with open(new_file_path, "wb", encoding='utf-8') as f:
                     f.write(data.getbuffer())
 
                 usersDatabase["models"][new_filename]={

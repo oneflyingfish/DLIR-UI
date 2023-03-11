@@ -1,11 +1,15 @@
 import streamlit as st
+import plotly.express as px
 
-# 创建一个容器并指定宽度
-container = st.container()
-container.width = 500
+# 定义扇形图数据
+data = dict(
+    values=[15, 30, 45, 10],
+    labels=['A', 'B', 'C', 'D'],
+    title='Pie Chart'
+)
 
-# 在容器中添加控件
-with container:
-    st.write("这是一个在框框里面的文本")
-    value = st.slider("选择一个值", 0, 100, 50)
-    st.write("您选择的值是：", value)
+# 绘制扇形图
+fig = px.pie(data, values='values', names='labels', title='Pie Chart')
+
+# 显示图表
+st.plotly_chart(fig)
