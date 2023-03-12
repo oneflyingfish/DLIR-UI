@@ -3,32 +3,49 @@ import os,datetime,time,random,json
 import database
 import copy
 import pandas as pd
-import socket,types
-from typing import Tuple,Dict
+import socket
+from typing import Tuple,Dict,List
 import matplotlib.pyplot as plt
+from collections import deque
+
+MAX_DATA=2000
+MAX_RR_DATA=2000
 
 def DealTime(value:int)->int:
     return value//1000  # us to ms
 
-def FlushDatas(times_serial:list,resour_time:list,tasks_time:dict,RR_time:dict,task_start_ends_tmp:dict,resource_uses_tmp:list,RR_logs_tmp:list,model_dict:dict)->Tuple[list,list,dict,dict]:
-    current_time=times_serial[-1]+1
+def AddtoList(datas:List[List[deque]],value:tuple)->List[list]:
+    if len(datas)<2 or len(datas[1])<2:
+        datas[0].append(value[0])
+        datas[1].append(value[1])
+        return datas
+    
+    if datas[1][-1]==value[1] and datas[1][-2]==value[1]:
+        datas[0].pop()
+        datas[1].pop()
 
+    datas[0].append(value[0])
+    datas[1].append(value[1])
+    return datas
+
+
+def FlushDatas(current_time:int,times_serial:list,resour_time:List[List[deque]],tasks_time:Dict[str,List[List[deque]]],RR_time:dict,task_start_ends_tmp:dict,resource_uses_tmp:list,RR_logs_tmp:list,model_dict:dict)->Tuple[list,list,dict,dict]:
     # 更新时间序列
     times_serial.append(current_time)
 
     # 更新资源序列
     while True:
-        if len(resour_time)<1:
+        if len(resource_uses_tmp)<1:
             # 没有任务继续使用资源了
-            resour_time.append(model_dict["等待任务"])
+            resour_time=AddtoList(resour_time,(current_time,model_dict["等待任务"]))
             break
 
         related=resource_uses_tmp[-1]
         if current_time<related[0]:
-            resour_time.append(model_dict["等待任务"])
+            resour_time=AddtoList(resour_time,(current_time,model_dict["等待任务"]))
             break
         elif current_time>=related[0] and current_time<=related[1]:
-            resour_time.append(model_dict[related[2]])
+            resour_time=AddtoList(resour_time,(current_time,model_dict[related[2]]))
             break
         else:
             # 当前加载子任务已经被处理完毕
@@ -40,7 +57,7 @@ def FlushDatas(times_serial:list,resour_time:list,tasks_time:dict,RR_time:dict,t
     for model_name,count_list in tasks_time.items():
         if model_name=="total":
             continue
-        current_count=count_list[-1]
+        current_count=count_list[1][-1]
         # 增加任务
         while True:
             if len(task_start_ends_tmp[model_name]["recv"])<1:
@@ -74,13 +91,14 @@ def FlushDatas(times_serial:list,resour_time:list,tasks_time:dict,RR_time:dict,t
             else:
                 # 下一个最近完成任务时刻尚未到达
                 break
-        tasks_time[model_name].append(current_count)
+        tasks_time[model_name]=AddtoList(tasks_time[model_name],(current_time,current_count))
         total_count+=current_count
-    tasks_time["total"].append(total_count)
+    tasks_time["total"]=AddtoList(tasks_time["total"],(current_time,total_count))
+    # tasks_time["total"].append(total_count)
 
     ## 更新响应比
     update={}
-    for k in RR_time:
+    for k in RR_time["models"]+["total"]:
         update[k]=[0,0]
 
     while True:
@@ -102,11 +120,39 @@ def FlushDatas(times_serial:list,resour_time:list,tasks_time:dict,RR_time:dict,t
             RR_logs_tmp.pop()
             continue
     
+    new_data={}
     for model_name,con in update.items():
         relate=RR_time[model_name][-1]
-        RR_time[model_name].append((relate[0]+con[0],relate[1]+con[1],((relate[0]+con[0])/(relate[1]+con[1])) if (relate[1]+con[1])>0 else 1))
+        new_data[model_name]=(relate[0]+con[0],relate[1]+con[1],((relate[0]+con[0])/(relate[1]+con[1])) if (relate[1]+con[1])>0 else 1)
+        # RR_time[model_name].append(new_data[model_name])
+    # RR_time["times"].append(current_time)
+    RR_time=AddToRRDict(RR_time,new_data,current_time)
 
     return times_serial,resour_time,tasks_time,RR_time
+
+def AddToRRDict(datas,new_data:dict,current_time:int):
+    if "times" not in datas or len(datas["times"])<2:
+        for model_name in new_data:
+            datas[model_name].append(new_data[model_name])
+        datas["times"].append(current_time)
+        return datas
+    
+    flag=True   # 可以缩减
+    for model_name,new_value in new_data.items():
+        if datas[model_name][-1]!=new_value or datas[model_name][-2]!=new_value:
+            flag=False
+            break
+    
+    if flag:
+        for model_name in new_data:
+            datas[model_name].pop()
+        datas["times"].pop()
+    
+    for model_name in new_data:
+        datas[model_name].append(new_data[model_name])
+    datas["times"].append(current_time)
+    return datas
+    
 
 def AnalyzeLogs()->Tuple[list,dict,list]:
     files=[file_name for file_name in os.listdir(os.path.join(os.getcwd(),"logs/tasks_log")) if file_name.endswith(".json")]
@@ -155,7 +201,6 @@ def delay_1ms():
 
 def RunTimeLog():
     st.markdown("#### 系统监控日志：")
-    usersDatabase=database.ReadUsersDatabase()
 
     # 求解任务情况
     resource_uses,task_start_ends,RR_logs = AnalyzeLogs()
@@ -173,12 +218,14 @@ def RunTimeLog():
     RR_logs_tmp = copy.deepcopy(RR_logs[::-1])
 
     times_serial=[min_time]                 # [17701,17702,17703,...]
-    tasks_time={"total":[0]}                # {"total": [...], "vgg19":[...]}，存储为某时刻任务数量
-    RR_time={"total":[(0,0,1)]}             # {"total": [...], "vgg19":[...]}, 存储为[(当前总响应比加和，任务数量，平均响应比)]
+    tasks_time={"total":[deque([min_time],maxlen=MAX_DATA),deque([0],maxlen=MAX_DATA)]}                # {"total": [...], "vgg19":[...]}，存储为某时刻任务数量
+    RR_time={"total":deque([(0,0,1)],maxlen=MAX_RR_DATA),"times":deque([min_time],maxlen=MAX_RR_DATA),"models":[]}             # {"total": [...], "vgg19":[...]}, 存储为[(当前总响应比加和，任务数量，平均响应比)]
+    
     for model_name in task_start_ends:
-        tasks_time[model_name]=[0]
-        RR_time[model_name]=[(0,0,1)]
-    resour_time=[0]                         # [0,1,2,1,3,5]，数字表示某时刻资源占用类型
+        tasks_time[model_name]=[deque([min_time],maxlen=MAX_DATA),deque([0],maxlen=MAX_DATA)]
+        RR_time["models"].append(model_name)
+        RR_time[model_name]=deque([(0,0,1)],maxlen=MAX_RR_DATA)
+    resour_time=[deque([min_time],maxlen=MAX_DATA),deque([0],maxlen=MAX_DATA)]                         # [0,1,2,1,3,5]，数字表示某时刻资源占用类型
 
     st.markdown("##### 任务数量：")
     tmp={"时间（ms）": times_serial}
@@ -198,10 +245,10 @@ def RunTimeLog():
         # tmp[model_name]=tasks_time[model_name]
         expander = st.expander("展示{}:".format(model_name))
         expander.markdown("###### {}：".format(model_name))
-        count_charts[model_name]=expander.line_chart(pd.DataFrame({"时间（ms）": times_serial, "排队任务数量":tasks_time[model_name]}),use_container_width=True, x="时间（ms）")
+        count_charts[model_name]=expander.line_chart(pd.DataFrame({"时间（ms）": tasks_time[model_name][0], "排队任务数量":tasks_time[model_name][1]}),use_container_width=True, x="时间（ms）")
     expander_total = st.expander("展示{}:".format("total"))
     expander_total.markdown("###### {}：".format("total"))
-    count_charts["total"]=expander_total.line_chart(pd.DataFrame({"时间（ms）": times_serial, "排队任务数量":tasks_time["total"]}),use_container_width=True, x="时间（ms）")
+    count_charts["total"]=expander_total.line_chart(pd.DataFrame({"时间（ms）": tasks_time["total"][0], "排队任务数量":tasks_time["total"][1]}),use_container_width=True, x="时间（ms）")
 
     st.markdown("##### 资源占用：")
     model_keys=["等待任务"]+list(task_start_ends.keys())+["未知"]
@@ -213,7 +260,7 @@ def RunTimeLog():
         table_data[key]=[str(value)]
     st.table(table_data)
 
-    resource_chart=st.line_chart(pd.DataFrame({"时间（ms）": times_serial,"资源占用类型":resour_time}),use_container_width=True, x="时间（ms）")
+    resource_chart=st.line_chart(pd.DataFrame({"时间（ms）": resour_time[0],"资源占用类型":resour_time[1]}),use_container_width=True, x="时间（ms）")
 
 
     st.markdown("##### 平均响应比分析：")
@@ -232,15 +279,15 @@ def RunTimeLog():
 
     # # 显示图形
     # RR_chart=RR_cols[1].pyplot(fig)
-    tmp={"时间（ms）": times_serial}
-    for model_name in RR_time:
+    tmp={"时间（ms）": RR_time["times"]}
+    for model_name in RR_time["models"]+["total"]:
         tmp[model_name]=[v[2] for v in RR_time[model_name]]
     RR_chart=st.line_chart(pd.DataFrame(tmp),use_container_width=True, x="时间（ms）")
 
     if max_time>min_time:
         for current_time in range(min_time+1,max_time+1):
             delay_1ms()
-            times_serial,resour_time,tasks_time,RR_time=FlushDatas(times_serial,resour_time,tasks_time,RR_time,task_start_ends_tmp,resource_uses_tmp,RR_logs_tmp,model_dict)
+            times_serial,resour_time,tasks_time,RR_time=FlushDatas(current_time,times_serial,resour_time,tasks_time,RR_time,task_start_ends_tmp,resource_uses_tmp,RR_logs_tmp,model_dict)
             # for m in RR_time:
             #     print(RR_time[m][-1][1], end=", ")
             # print()
@@ -250,16 +297,19 @@ def RunTimeLog():
             #     tmp[model_name]=tasks_time[model_name]
 
             for model_name in task_start_ends:
-                count_charts[model_name].line_chart(pd.DataFrame({"时间（ms）": times_serial, "排队任务数量":tasks_time[model_name]}),use_container_width=True, x="时间（ms）")
-            count_charts["total"].line_chart(pd.DataFrame({"时间（ms）": times_serial, "排队任务数量":tasks_time["total"]}),use_container_width=True, x="时间（ms）")
+                count_charts[model_name].line_chart(pd.DataFrame({"时间（ms）": tasks_time[model_name][0], "排队任务数量":tasks_time[model_name][1]}),use_container_width=True, x="时间（ms）")
+            count_charts["total"].line_chart(pd.DataFrame({"时间（ms）": tasks_time["total"][0], "排队任务数量":tasks_time["total"][1]}),use_container_width=True, x="时间（ms）")
 
 
-            resource_chart.line_chart(pd.DataFrame({"时间（ms）": times_serial,"资源占用类型":resour_time}),use_container_width=True, x="时间（ms）")
+            resource_chart.line_chart(pd.DataFrame({"时间（ms）": resour_time[0],"资源占用类型":resour_time[1]}),use_container_width=True, x="时间（ms）")
             # fig=DrawTotal(RR_time,RR_chart,fig,ax)
-            tmp={"时间（ms）": times_serial}
-            for model_name in RR_time:
+            tmp={"时间（ms）": RR_time["times"]}
+            for model_name in RR_time["models"]+["total"]:
                 tmp[model_name]=[v[2] for v in RR_time[model_name]]
             RR_chart.line_chart(pd.DataFrame(tmp),use_container_width=True, x="时间（ms）")
+
+            # print("analyze-to:{:.2%}, total-tasks-count:{},resource-count:{}, RR-count:{}".format((current_time-min_time)/(max_time-min_time),len(tasks_time["total"][0]),len(resour_time[0]),len(RR_time["times"])))
+
 
 
 
