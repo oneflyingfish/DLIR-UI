@@ -443,9 +443,11 @@ def ControlSystem():
         value=expander.slider("{}".format(model_name),min_value=0,max_value=childs_count_info[model_name],value=1 if model_name not in st.session_state else min(st.session_state[model_name],childs_count_info[model_name]),step=1)
         deployment[model_name]=value
 
+    tmp={}
     for k,v in deployment.items():
-        if v<1:
-            del deployment[k]
+        if v>0:
+            tmp[k]=v
+    deployment=tmp
 
     if expander.button("部署"):
         # restart system

@@ -1,0 +1,12 @@
+start to run vgg19 test.
+run vgg19 test to end.
+start to run resnet50 test.
+run resnet50 test to end.
+start to run googlenet test.
+run googlenet test to end.
+start to run gpt128v2 test.
+run gpt128v2 test to end.
+start to run yolov2 test.
+run yolov2 test to end.
+run reply gather.
+start ok.
